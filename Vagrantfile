@@ -10,18 +10,19 @@ Vagrant.configure(2) do |config|
   end
   # config.hostmanager.enabled = true
 
-  config.vm.define "admin-node" do |admin|
-    admin.vm.network :private_network, ip: "172.71.212.10"
-    admin.vm.hostname = "admin-node"
-    admin.vm.provision "shell", path: "provision-base.sh"
-  end
-
   (1..3).each do |i|
     config.vm.define "ceph-node-#{i}" do |node|
-      node.vm.network :private_network, ip: "172.71.212.#{100+i}"
       node.vm.hostname = "ceph-node-#{i}"
+      node.vm.network :private_network, ip: "172.71.212.#{100+i}"
       node.vm.provision "shell", path: "provision-base.sh"
     end
+  end
+
+  config.vm.define "admin-node" do |admin|
+    admin.vm.hostname = "admin-node"
+    admin.vm.network :private_network, ip: "172.71.212.10"
+    admin.vm.network :forwarded_port, guest: 8080, host: 7180, host_ip: "127.0.0.1"
+    admin.vm.provision "shell", path: "provision-base.sh"
   end
 
 end
