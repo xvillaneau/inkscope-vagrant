@@ -1,7 +1,7 @@
 # apt-get install ceph
 
 LOCK_DIR='/var/vagrant/locks'
-mkdir -p /var/vagrant/locks
+mkdir -p $LOCK_DIR
 
 SSH_LOCK=$LOCK_DIR/ssh.lock
 if [ ! -e "$SSH_LOCK" ]; then
@@ -28,7 +28,7 @@ touch $HOSTS_LOCK
 
 APT_BASE_LOCK=$LOCK_DIR/apt_base.lock
 if [ ! -e "$APT_BASE_LOCK" ]; then
-  echo "Installing required pqckages"
+  echo "Installing required packages"
   apt-get update
   apt-get install -y ceph
 fi
