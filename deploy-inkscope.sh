@@ -118,4 +118,26 @@ else
 fi
 sudo touch $SYSPROBE_LOCK
 
+# Install the Inkscope Dashboard
+ADMVIZ_LOCK=$LOCK_DIR/inkscope-admviz.lock
+if [ ! -e "$ADMVIZ_LOCK" ]; then
+  echo "Installing Inkscope"
+  sudo apt-get install -y apache2 libapache2-mod-wsgi python-pip
+  sudo a2enmod proxy proxy_http
+  sudo a2dissite 000-default.conf
+
+  sudo pip install Flask-Login
+  sudo dpkg -i inkscope-admviz_$INKSCOPE_VERSION.deb
+
+  SITE_CFG='/etc/apache2/sites-available/inkScope.conf'
+  sudo sed -i 's/<VirtualHost /Listen 8080\n<VirtualHost /' $SITE_CFG
+  sudo sed -i "s/<inkscope_host>/$ADMIN_HOST/" $SITE_CFG
+  sudo sed -i 's/<inkscope_port>/7171/' $SITE_CFG
+  sudo a2ensite inkScope.conf
+  sudo apache2ctl restart
+else
+  echo "Skipping inkscope installation"
+fi
+sudo touch $ADMVIZ_LOCK
+
 popd
