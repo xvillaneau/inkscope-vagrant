@@ -1,0 +1,8 @@
+1c1
+< #!/bin/sh
+---
+> #!/bin/bash
+18c18
+<     /usr/bin/ceph-rest-api -n client.admin >>$LOGFILE  &
+---
+>     /usr/bin/ceph-rest-api -n client.admin &>> $LOGFILE &
