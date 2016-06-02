@@ -50,7 +50,7 @@ Vagrant.configure(2) do |config|
     admin.vm.network :private_network, ip: "172.71.212.10"
     admin.vm.network :forwarded_port, guest: 8080, host: 7180, host_ip: "127.0.0.1"
     admin.vm.provision "shell", path: "provision-base.sh"
-    admin.vm.provision "shell", path: "provision-admin-ceph.sh", privileged: false
+    admin.vm.provision "shell", path: "deploy-ceph.sh", privileged: false
   end
 
 end

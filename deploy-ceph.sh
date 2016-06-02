@@ -25,7 +25,7 @@ if [ ! -e "$CEPH_LOCK" ]; then
   ceph-deploy admin admin-node ceph-node-1 ceph-node-2 ceph-node-3
 
   # Add the OSDs
-  # NOTE: For some reason the OSDs are created with a weight of 1
+  # NOTE: The OSDs are created with a weight of 0 and must be reweighted
   ceph-deploy osd create ceph-node-1:/dev/sdb ceph-node-1:/dev/sdc
   ceph osd crush reweight osd.0 1
   ceph osd crush reweight osd.1 1
