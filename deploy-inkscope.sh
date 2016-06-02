@@ -14,6 +14,11 @@ if [ ! -e "$INIT_LOCK" ]; then
   echo "Downloading Inkscope packages"
   sudo apt-get install -y git
   git clone https://github.com/inkscope/inkscope-packaging.git
+
+  # Ensure we have the right version
+  cd inkscope-packaging
+  git checkout V1.4.0-2
+  cd ..
 else
   echo "Skipping Inkscope download"
 fi
