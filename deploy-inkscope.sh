@@ -7,6 +7,8 @@ INKSCOPE_CFG='/opt/inkscope/etc/inkscope.conf'
 
 cd $HOME
 
+# Initialize Inkscope repository
+# TODO: Actually not a repository, this could be improved
 INIT_LOCK=$LOCK_DIR/inkscope-init.lock
 if [ ! -e "$INIT_LOCK" ]; then
   echo "Downloading Inkscope packages"
@@ -42,6 +44,7 @@ else
 fi
 sudo touch $RESTAPI_LOCK
 
+# Install and configure MongoDB for Inkscope
 MONGO_LOCK=$LOCK_DIR/inkscope-mongodb.lock
 if [ ! -e "$MONGO_LOCK" ]; then
   echo "Installing MongoDB"
@@ -54,5 +57,32 @@ else
   echo "Skipping MongoDB installation"
 fi
 sudo touch $MONGO_LOCK
+
+# Install and configure the common inkscope components
+COMMON_LOCK=$LOCK_DIR/inkscope-common.lock
+if [ ! -e "$COMMON_LOCK" ]; then
+  echo "Installing Inkscope Common components"
+
+  COMMON_PKG="inkscope-common_$INKSCOPE_VERSION.deb"
+  sudo dpkg -i $COMMON_PKG
+
+  # Editing config file
+  # First line updates the configuration template for easier fill-in
+  sed -i 's/"ceph_rest_api":.*/"ceph_rest_api": "cra_host:cra_port",/' $INKSCOPE_CFG
+  sed -i "s/cra_host/$ADMIN_HOST/" $INKSCOPE_CFG
+  sed -i 's/cra_port/7171/' $INKSCOPE_CFG
+  sed -i "s/mpongo_host/$ADMIN_HOST/" $INKSCOPE_CFG
+  sed -i "s/inkscope_host/127.0.0.1/" $INKSCOPE_CFG
+  sed -i "s/inkscope_port/7180/" $INKSCOPE_CFG
+
+  # Send the package onto the other nodes, install it, push the configuration
+  for s in ceph-node-1 ceph-node-2 ceph-node-3; do
+    scp $COMMON_PKG $s:.
+    ssh $s "sudo dpkg -i $COMMON_PKG"
+    scp $INKSCOPE_CFG $s:$INKSCOPE_CFG
+  done
+else
+  echo "Skipping inkscope-common installation"
+fi
 
 popd
