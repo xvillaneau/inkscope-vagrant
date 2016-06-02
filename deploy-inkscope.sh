@@ -58,7 +58,7 @@ else
 fi
 sudo touch $MONGO_LOCK
 
-# Install and configure the common inkscope components
+# Install, configure and deploy the common inkscope components
 COMMON_LOCK=$LOCK_DIR/inkscope-common.lock
 if [ ! -e "$COMMON_LOCK" ]; then
   echo "Installing Inkscope Common components"
@@ -84,5 +84,17 @@ if [ ! -e "$COMMON_LOCK" ]; then
 else
   echo "Skipping inkscope-common installation"
 fi
+
+# Install the Inkscope Cephprobe on the admin node
+CEPHPROBE_LOCK=$LOCK_DIR/inkscope-cephprobe.lock
+if [ ! -e "$CEPHPROBE_LOCK" ]; then
+  echo "Installing Inkscope cephprobe"
+  sudo apt-get install -y python-pymongo python-psutil
+  sudo dpkg -i inkscope-cephprobe_$INKSCOPE_VERSION.deb
+  sudo service cephprobe start
+else
+  echo "Skipping cephprobe installation"
+fi
+sudo touch $CEPHPROBE_LOCK
 
 popd
