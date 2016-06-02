@@ -97,4 +97,25 @@ else
 fi
 sudo touch $CEPHPROBE_LOCK
 
+# Deploy the Sysprobe on all nodes
+SYSPROBE_LOCK=$LOCK_DIR/inkscope-sysprobe.lock
+if [ ! -e "$SYSPROBE_LOCK" ]; then
+  echo "Installing Inkscope sysprobe"
+  PROBE_PKG=inkscope-sysprobe_$INKSCOPE_VERSION.deb
+
+  # Install on the admin node
+  sudo dpkg -i $PROBE_PKG
+  sudo service sysprobe start
+
+  # Install on the data nodes
+  for s in ceph-node-1 ceph-node-2 ceph-node-3; do
+    scp $PROBE_PKG $s:.
+    ssh $s "sudo apt-get install -y python-pymongo python-psutil; sudo dpkg -i $PROBE_PKG; sudo service sysprobe start"
+  done
+
+else
+  echo "Skipping sysprobe installation"
+fi
+sudo touch $SYSPROBE_LOCK
+
 popd
