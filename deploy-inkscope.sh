@@ -42,4 +42,17 @@ else
 fi
 sudo touch $RESTAPI_LOCK
 
+MONGO_LOCK=$LOCK_DIR/inkscope-mongodb.lock
+if [ ! -e "$MONGO_LOCK" ]; then
+  echo "Installing MongoDB"
+  sudo apt-get install -y mongodb
+  sudo sed -i "s/^bind_ip.*/bind_ip = $ADMIN_HOST/" /etc/mongodb.conf
+  sudo service mongodb restart
+  sleep 2
+  mongo 172.71.212.10/admin /vagrant/mongodb-2.4-create-admin.js
+else
+  echo "Skipping MongoDB installation"
+fi
+sudo touch $MONGO_LOCK
+
 popd
