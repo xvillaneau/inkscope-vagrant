@@ -91,37 +91,30 @@ else
 fi
 
 # Install the Inkscope Cephprobe on the admin node
-CEPHPROBE_LOCK=$LOCK_DIR/inkscope-cephprobe.lock
-if [ ! -e "$CEPHPROBE_LOCK" ]; then
-  echo "Installing Inkscope cephprobe"
+PROBE_LOCK=$LOCK_DIR/inkscope-probes.lock
+if [ ! -e "$PROBE_LOCK" ]; then
+  echo "Installing Inkscope cephprobe and sysprobe"
+  SYSPROBE_PKG=inkscope-sysprobe_$INKSCOPE_VERSION.deb
+
+  # Install both probes on the admin node
   sudo apt-get install -y python-pymongo python-psutil
   sudo dpkg -i inkscope-cephprobe_$INKSCOPE_VERSION.deb
+  sudo dpkg -i $SYSPROBE_PKG
   sudo service cephprobe start
-else
-  echo "Skipping cephprobe installation"
-fi
-sudo touch $CEPHPROBE_LOCK
-
-# Deploy the Sysprobe on all nodes
-SYSPROBE_LOCK=$LOCK_DIR/inkscope-sysprobe.lock
-if [ ! -e "$SYSPROBE_LOCK" ]; then
-  echo "Installing Inkscope sysprobe"
-  PROBE_PKG=inkscope-sysprobe_$INKSCOPE_VERSION.deb
-
-  # Install on the admin node
-  sudo dpkg -i $PROBE_PKG
   sudo service sysprobe start
 
-  # Install on the data nodes
+  # Install the sysprobe on the Ceph nodes
+  cmd="sudo apt-get install -y python-pymongo python-psutil"
+  cmd="$cmd; sudo dpkg -i $SYSPROBE_PKG"
+  cmd="$cmd; sudo service sysprobe start"
   for s in ceph-node-1 ceph-node-2 ceph-node-3; do
-    scp $PROBE_PKG $s:.
-    ssh $s "sudo apt-get install -y python-pymongo python-psutil; sudo dpkg -i $PROBE_PKG; sudo service sysprobe start"
+    scp $SYSPROBE_PKG $s:.
+    ssh $s $cmd
   done
-
 else
-  echo "Skipping sysprobe installation"
+  echo "Skipping cephprobe and sysprobe installation"
 fi
-sudo touch $SYSPROBE_LOCK
+sudo touch $PROBE_LOCK
 
 # Install the Inkscope Dashboard
 ADMVIZ_LOCK=$LOCK_DIR/inkscope-admviz.lock
