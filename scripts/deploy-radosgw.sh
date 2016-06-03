@@ -12,7 +12,7 @@ if [ ! -e "$RGW_LOCK" ]; then
             mon 'allow rwx' -o /etc/ceph/ceph.client.radosgw.keyring
 
   pushd deploy-ceph
-  cat /vagrant/ceph-radosgw.conf >> ceph.conf
+  cat /vagrant/files/ceph-radosgw.conf >> ceph.conf
   ceph-deploy --overwrite-conf config push admin-node ceph-node-1 \
                                            ceph-node-2 ceph-node-3
   popd
@@ -21,7 +21,7 @@ if [ ! -e "$RGW_LOCK" ]; then
   sleep 1
 
   # Configure Apache2
-  sudo cp /vagrant/apache2-radosgw.conf /etc/apache2/sites-available/rgw.conf
+  sudo cp /vagrant/files/apache2-radosgw.conf /etc/apache2/sites-available/rgw.conf
   sudo a2enmod rewrite proxy_fcgi
   sudo a2ensite rgw.conf
   sudo service radosgw restart

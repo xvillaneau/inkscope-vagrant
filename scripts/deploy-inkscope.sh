@@ -42,7 +42,7 @@ if [ ! -e "$RESTAPI_LOCK" ]; then
   # Install package, apply patch, start process
   sudo dpkg -i inkscope-cephrestapi_$INKSCOPE_VERSION.deb
   sudo chown root:root /etc/init.d/ceph-rest-api /etc/logrotate.d/cephrestapi
-  sudo patch /etc/init.d/ceph-rest-api /vagrant/ceph-rest-api.patch
+  sudo patch /etc/init.d/ceph-rest-api /vagrant/files/ceph-rest-api.patch
   sudo service ceph-rest-api start
 else
   echo "Skipping Ceph REST API install"
@@ -57,7 +57,7 @@ if [ ! -e "$MONGO_LOCK" ]; then
   sudo sed -i "s/^bind_ip.*/bind_ip = $ADMIN_HOST/" /etc/mongodb.conf
   sudo service mongodb restart
   sleep 2
-  mongo 172.71.212.10/admin /vagrant/mongodb-2.4-create-admin.js
+  mongo 172.71.212.10/admin /vagrant/files/mongodb-2.4-create-admin.js
 else
   echo "Skipping MongoDB installation"
 fi

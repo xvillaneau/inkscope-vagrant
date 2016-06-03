@@ -10,10 +10,10 @@ if [ ! -e "$SSH_LOCK" ]; then
 
   # Copy the key pair to all machines to enable password-less access for Ceph
   pushd /vagrant
-  cp vagrant-key $SSH_DIR/id_rsa
+  cp files/vagrant-key $SSH_DIR/id_rsa
   chmod 600 $SSH_DIR/id_rsa
   chown vagrant:vagrant $SSH_DIR/id_rsa
-  cat vagrant-key.pub >> $SSH_DIR/authorized_keys
+  cat files/vagrant-key.pub >> $SSH_DIR/authorized_keys
   popd
 
   # Prevent SSH for prompting for host keys validation
