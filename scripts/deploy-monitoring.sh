@@ -34,7 +34,7 @@ if [ ! -e "$INFLUXDB_LOCK" ]; then
   echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
 
   sudo apt-get update
-  sudo apt-get install influxdb
+  sudo apt-get install -y influxdb
 
   cat /vagrant/files/influxdb-collectd.conf | sudo tee -a /etc/influxdb/influxdb.conf
   sudo service influxdb start
