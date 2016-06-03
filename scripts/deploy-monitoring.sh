@@ -42,8 +42,8 @@ if [ ! -e "$INFLUXDB_LOCK" ]; then
 
   curl -s -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE collectd"
 
-  sed -i "s/influxdb_host/$ADMIN_HOST/" $INKSCOPE_CFG
-  sed -i "s/influxdb_port/8086/" $INKSCOPE_CFG
+  sed -i "s/influxdb_host/127.0.0.1/" $INKSCOPE_CFG
+  sed -i "s/influxdb_port/7186/" $INKSCOPE_CFG
   sudo apache2ctl restart
 else
   echo "Skipping InfluxDB installation"
