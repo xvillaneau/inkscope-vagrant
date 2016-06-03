@@ -74,11 +74,14 @@ if [ ! -e "$COMMON_LOCK" ]; then
   # Editing config file
   # First line updates the configuration template for easier fill-in
   sed -i 's/"ceph_rest_api":.*/"ceph_rest_api": "cra_host:cra_port",/' $INKSCOPE_CFG
+  sed -i 's/"platform":.*/"platform": "platform_name",/' $INKSCOPE_CFG
+
   sed -i "s/cra_host/$ADMIN_HOST/" $INKSCOPE_CFG
   sed -i 's/cra_port/7171/' $INKSCOPE_CFG
   sed -i "s/mpongo_host/$ADMIN_HOST/" $INKSCOPE_CFG
   sed -i "s/inkscope_host/127.0.0.1/" $INKSCOPE_CFG
   sed -i "s/inkscope_port/7180/" $INKSCOPE_CFG
+  sed -i "s/platform_name/Inkscope Vagrant demonstration/" $INKSCOPE_CFG
 
   # Send the package onto the other nodes, install it, push the configuration
   for s in ceph-node-1 ceph-node-2 ceph-node-3; do
@@ -89,6 +92,7 @@ if [ ! -e "$COMMON_LOCK" ]; then
 else
   echo "Skipping inkscope-common installation"
 fi
+sudo touch $COMMON_LOCK
 
 # Install the Inkscope Cephprobe on the admin node
 PROBE_LOCK=$LOCK_DIR/inkscope-probes.lock
