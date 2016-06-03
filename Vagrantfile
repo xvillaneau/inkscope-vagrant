@@ -41,7 +41,7 @@ Vagrant.configure(2) do |config|
 
       node.vm.hostname = "ceph-node-#{i}"
       node.vm.network :private_network, ip: "172.71.212.#{100+i}"
-      node.vm.provision "shell", path: "provision-base.sh"
+      node.vm.provision "shell", path: "scripts/provision-base.sh"
     end
   end
 
@@ -49,10 +49,10 @@ Vagrant.configure(2) do |config|
     admin.vm.hostname = "admin-node"
     admin.vm.network :private_network, ip: "172.71.212.10"
     admin.vm.network :forwarded_port, guest: 8080, host: 7180, host_ip: "127.0.0.1"
-    admin.vm.provision "shell", path: "provision-base.sh"
-    admin.vm.provision "shell", path: "deploy-ceph.sh", privileged: false
-    admin.vm.provision "shell", path: "deploy-inkscope.sh", privileged: false
-    admin.vm.provision "shell", path: "deploy-radosgw.sh", privileged: false
+    admin.vm.provision "shell", path: "scripts/provision-base.sh"
+    admin.vm.provision "shell", path: "scripts/deploy-ceph.sh", privileged: false
+    admin.vm.provision "shell", path: "scripts/deploy-inkscope.sh", privileged: false
+    admin.vm.provision "shell", path: "scripts/deploy-radosgw.sh", privileged: false
   end
 
 end

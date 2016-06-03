@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /vagrant/utils.sh
+source /vagrant/scripts/utils.sh || exit 1
 pushd $HOME
 
 RGW_LOCK=$VAGRANT_LOCK_DIR/radosgw.lock
