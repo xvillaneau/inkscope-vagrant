@@ -33,9 +33,9 @@ if [ ! -e "$RESTAPI_LOCK" ]; then
 
   # Update Ceph configuration
   pushd $HOME/deploy-ceph
-  echo '[client.admin]' >> ceph.conf
+  echo -e '\n[client.admin]' >> ceph.conf
   echo 'restapi base url = /ceph_rest_api/api/v0.1' >> ceph.conf
-  echo "public addr = $ADMIN_HOST:7171]" >> ceph.conf
+  echo "public addr = $ADMIN_HOST:7171" >> ceph.conf
   ceph-deploy --overwrite-conf config push admin-node ceph-node-1 ceph-node-2 ceph-node-3
   popd
 
