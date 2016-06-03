@@ -54,6 +54,7 @@ Vagrant.configure(2) do |config|
     admin.vm.provision "shell", path: "scripts/deploy-inkscope.sh", privileged: false
     admin.vm.provision "shell", path: "scripts/deploy-radosgw.sh", privileged: false
     admin.vm.provision "shell", path: "scripts/deploy-cephfs.sh", privileged: false
+    admin.vm.provision "shell", path: "scripts/deploy-monitoring.sh", privileged: false
 
   end
 

@@ -14,3 +14,5 @@ else
   echo "Skipping CephFS preparation"
 fi
 sudo touch $CEPHFS_LOCK
+
+popd
