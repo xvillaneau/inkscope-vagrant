@@ -1,0 +1,27 @@
+---
+
+- name: Create OSD directories
+  file:
+    state: directory
+    path: /var/vagrant/osd-{{ item }}
+    group: ceph
+    owner: ceph
+  with_items:
+  - "A"
+  - "B"
+
+- name: Prepare the OSDs
+  command: ceph-disk prepare /var/vagrant/osd-{{ item }}
+  args:
+    creates: /var/vagrant/osd-{{ item }}/magic
+  with_items:
+    - "A"
+    - "B"
+
+- name: Activate the OSDs
+  command: ceph-disk activate /var/vagrant/osd-{{ item }}
+  args:
+    creates: /var/vagrant/osd-{{ item }}/whoami
+  with_items:
+    - "A"
+    - "B"

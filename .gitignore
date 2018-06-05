@@ -1,2 +1,6 @@
 /.vagrant
 /drives
+
+# Deployment artifacts
+*.log
+*.retry

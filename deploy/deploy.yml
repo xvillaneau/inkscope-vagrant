@@ -1,0 +1,42 @@
+
+---
+
+- name: Configure SSH on all node
+  hosts: all
+  gather_facts: false
+  roles:
+  - prepare_ssh
+  tasks:
+  - name: Get the package facts
+    package_facts:
+      manager: "apt"
+
+- name: Install ceph-deploy
+  hosts: admin
+  gather_facts: false
+  become: true
+  roles:
+  - ceph_deploy_install
+
+- name: Initialize the cluster
+  hosts: admin
+  gather_facts: false
+  roles:
+  - ceph_init
+
+- name: Make sure the admin keyring is readable
+  hosts: admin
+  gather_facts: false
+  become: true
+  tasks:
+  - name: Give read right to the Ceph admin keyring
+    file:
+      path: /etc/ceph/ceph.client.admin.keyring
+      mode: +r
+
+- name: Create OSDs
+  hosts: data
+  gather_facts: false
+  become: true
+  roles:
+  - ceph_osds

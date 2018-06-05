@@ -1,0 +1,51 @@
+---
+
+- name: Create the working directory for ceph-deploy
+  file:
+    state: directory
+    path: /home/vagrant/ceph-deploy
+
+- name: Initialize the cluster deployment
+  command: ceph-deploy new ceph-node-1 ceph-node-2 ceph-node-3
+  args:
+    creates: /home/vagrant/ceph-deploy/ceph.conf
+    chdir: /home/vagrant/ceph-deploy
+
+- name: Tweak ceph.conf OSD settings a little
+  ini_file:
+    path: /home/vagrant/ceph-deploy/ceph.conf
+    section: osd
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - option: osd_pool_default_size
+      value: 2
+    - option: osd_pool_default_pg_num
+      value: 32
+    - option: osd_pool_default_pgp_num
+      value: 32
+    - option: osd_journal_size
+      value: 1024
+    - option: osd_max_object_name_len
+      value: 256
+    - option: osd max object namespace len
+      value: 64
+
+- name: Install Ceph packages (long!)
+  command: "ceph-deploy install --release jewel {{ item }}"
+  args:
+    chdir: /home/vagrant/ceph-deploy
+  with_items: "{{ groups['all'] }}"
+  when: "'ceph' not in hostvars[item].packages"
+
+- name: Install the MONs
+  command: ceph-deploy mon create-initial
+  args:
+    creates: /home/vagrant/ceph-deploy/ceph.client.admin.keyring
+    chdir: /home/vagrant/ceph-deploy
+
+- name: Copy admin keyring
+  command: ceph-deploy admin admin-node
+  args:
+    creates: /etc/ceph/ceph.client.admin.keyring
+    chdir: /home/vagrant/ceph-deploy

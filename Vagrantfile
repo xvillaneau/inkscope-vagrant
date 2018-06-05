@@ -1,47 +1,28 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
 
-# Make the temporary drives directory if needed
-unless Dir.exist?("drives")
-  Dir.mkdir("drives")
+ansible_provision = proc do |ansible|
+  ansible.playbook = "deploy/deploy.yml"
+  ansible.groups = {
+    "data"  => ["ceph-node-1", "ceph-node-2", "ceph-node-3"],
+    "admin" => ["admin-node"],
+    "all:children" => ["data", "admin"]
+  }
+  ansible.limit = 'all'
 end
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
   # Enabled linked cloning for quicker startup
   config.vm.provider 'virtualbox' do |v|
     v.linked_clone = true if Vagrant::VERSION =~ /^1.8/
   end
-  # config.hostmanager.enabled = true
+  config.hostmanager.enabled = true
 
   (1..3).each do |i|
     config.vm.define "ceph-node-#{i}" do |node|
-
-      # Add two drives per VM
-      node.vm.provider 'virtualbox' do |vb|
-
-        # Generate drive paths
-        disk1 = File.join(Dir.pwd, "drives", "ceph-node-#{i}_disk-1.vdi")
-        disk2 = File.join(Dir.pwd, "drives", "ceph-node-#{i}_disk-2.vdi")
-
-        # Create the drives
-        # NOTE: If this fails with VERR_ALREADY_EXISTS because of a previous
-        # failure,go into the VirtualBox Virtual Media Manager and remove the
-        # faulty declarations
-        vb.customize ['createhd', '--filename', disk1, '--size', 10 * 1024]
-        vb.customize ['createhd', '--filename', disk2, '--size', 10 * 1024]
-
-        # Attach the drives to the VM
-        vb.customize ['storageattach', :id, '--storagectl', 'SATAController',
-                      '--port', 1, '--type', 'hdd', '--medium', disk1]
-        vb.customize ['storageattach', :id, '--storagectl', 'SATAController',
-                      '--port', 2, '--type', 'hdd', '--medium', disk2]
-      end
-
       node.vm.hostname = "ceph-node-#{i}"
       node.vm.network :private_network, ip: "172.71.212.#{100+i}"
-      node.vm.provision "shell", path: "scripts/provision-base.sh"
+      node.vm.provision "shell", path: "deploy/install_python.sh"
     end
   end
 
@@ -51,13 +32,13 @@ Vagrant.configure(2) do |config|
     admin.vm.network :forwarded_port, guest: 8080, host: 7180, host_ip: "127.0.0.1"
     admin.vm.network :forwarded_port, guest: 8086, host: 7186, host_ip: "127.0.0.1"
 
-    admin.vm.provision "shell", path: "scripts/provision-base.sh"
-    admin.vm.provision "shell", path: "scripts/deploy-ceph.sh", privileged: false
-    admin.vm.provision "shell", path: "scripts/deploy-inkscope.sh", privileged: false
-    admin.vm.provision "shell", path: "scripts/deploy-radosgw.sh", privileged: false
-    admin.vm.provision "shell", path: "scripts/deploy-cephfs.sh", privileged: false
-    admin.vm.provision "shell", path: "scripts/deploy-monitoring.sh", privileged: false
+    admin.vm.provision "shell", path: "deploy/install_python.sh"
+    admin.vm.provision "ansible", &ansible_provision
+
+    # admin.vm.provision "shell", path: "scripts/deploy-inkscope.sh", privileged: false
+    # admin.vm.provision "shell", path: "scripts/deploy-radosgw.sh", privileged: false
+    # admin.vm.provision "shell", path: "scripts/deploy-cephfs.sh", privileged: false
+    # admin.vm.provision "shell", path: "scripts/deploy-monitoring.sh", privileged: false
 
   end
-
 end

@@ -1,0 +1,19 @@
+---
+
+- name: Copy Vagrant private key
+  copy:
+    src: files/vagrant-key
+    dest: /home/vagrant/.ssh/id_rsa
+    mode: 0600
+
+- name: Copy the matching public key to the authorized_keys
+  lineinfile:
+    dest: /home/vagrant/.ssh/authorized_keys
+    create: yes
+    state: present
+    line: "{{ lookup('file', 'files/vagrant-key.pub') }}"
+
+- name: Copy the SSH configuration file
+  copy:
+    src: files/ssh.config
+    dest: /home/vagrant/.ssh/config
