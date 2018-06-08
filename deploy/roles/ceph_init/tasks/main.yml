@@ -1,5 +1,19 @@
 ---
 
+- name: Install PIP in preparation for installing ceph-deploy
+  become: true
+  apt:
+    name: python-pip
+    state: present
+    update_cache: yes
+
+- name: Install ceph-deploy
+  become: true
+  pip:
+    name: ceph-deploy
+    version: 1.5.39
+    state: present
+
 - name: Create the working directory for ceph-deploy
   file:
     state: directory
@@ -49,3 +63,9 @@
   args:
     creates: /etc/ceph/ceph.client.admin.keyring
     chdir: /home/vagrant/ceph-deploy
+
+- name: Give read right to the Ceph admin keyring
+  become: true
+  file:
+    path: /etc/ceph/ceph.client.admin.keyring
+    mode: +r

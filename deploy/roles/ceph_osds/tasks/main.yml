@@ -1,6 +1,7 @@
 ---
 
 - name: Create OSD directories
+  become: true
   file:
     state: directory
     path: /var/vagrant/osd-{{ item }}
@@ -11,6 +12,7 @@
   - "B"
 
 - name: Prepare the OSDs
+  become: true
   command: ceph-disk prepare /var/vagrant/osd-{{ item }}
   args:
     creates: /var/vagrant/osd-{{ item }}/magic
@@ -19,6 +21,7 @@
     - "B"
 
 - name: Activate the OSDs
+  become: true
   command: ceph-disk activate /var/vagrant/osd-{{ item }}
   args:
     creates: /var/vagrant/osd-{{ item }}/whoami

@@ -1,0 +1,8 @@
+---
+
+- name: Propagate ceph config
+  command: "ceph-deploy --overwrite-conf config push {{ item }}"
+  args:
+    chdir: /home/vagrant/ceph-deploy
+  with_items: "{{ groups['all'] }}"
+  listen: "propagate ceph config"

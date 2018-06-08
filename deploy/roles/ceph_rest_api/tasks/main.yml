@@ -1,0 +1,35 @@
+---
+
+- name: Configure ceph-rest-api
+  ini_file:
+    path: /home/vagrant/ceph-deploy/ceph.conf
+    section: client.admin
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - option: restapi_base_url
+      value: /ceph_rest_api/api/v0.1
+    - option: public_addr
+      value: 172.71.212.10:7171
+  notify: "propagate ceph config"
+
+- name: Install ceph-rest-api
+  become: true
+  apt:
+    deb: /home/vagrant/inkscope-packaging/DEBS/inkscope-cephrestapi_1.4.0.2.deb
+
+- name: Change owner of ceph-rest-api files
+  become: true
+  file:
+    path: "{{ item }}"
+    group: root
+    owner: root
+  with_items:
+  - /etc/init.d/ceph-rest-api
+  - /etc/logrotate.d/cephrestapi
+
+- name: Start the ceph-rest-api
+  become:  true
+  service:
+    name: ceph-rest-api
+    state: started

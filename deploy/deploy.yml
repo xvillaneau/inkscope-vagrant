@@ -1,42 +1,48 @@
-
 ---
 
-- name: Configure SSH on all node
+- name: Common initial steps
   hosts: all
-  gather_facts: false
-  roles:
-  - prepare_ssh
   tasks:
+
+  - name: Configure SSH on all node
+    include_role: name=prepare_ssh
+
   - name: Get the package facts
     package_facts:
       manager: "apt"
 
-- name: Install ceph-deploy
+- name: Initialize the Ceph cluster
   hosts: admin
-  gather_facts: false
-  become: true
-  roles:
-  - ceph_deploy_install
-
-- name: Initialize the cluster
-  hosts: admin
-  gather_facts: false
   roles:
   - ceph_init
 
-- name: Make sure the admin keyring is readable
-  hosts: admin
-  gather_facts: false
-  become: true
-  tasks:
-  - name: Give read right to the Ceph admin keyring
-    file:
-      path: /etc/ceph/ceph.client.admin.keyring
-      mode: +r
-
 - name: Create OSDs
   hosts: data
-  gather_facts: false
-  become: true
   roles:
   - ceph_osds
+
+- name: Install Inkscope
+  hosts: admin
+  tasks:
+
+  - name: Download Inkscope
+    git:
+      dest: /home/vagrant/inkscope-packaging
+      repo: https://github.com/inkscope/inkscope-packaging.git
+      version: V1.4.0-2
+
+  - name: Install ceph-rest-api
+    include_role: name=ceph_rest_api
+
+  - name: Install MongoDB
+    include_role: name=mongodb
+
+  - name: Add Inkscope DB user
+    mongodb_user:
+      database: inkscope
+      name: inkscope
+      password: inkscope
+      roles: dbOwner
+      login_user: admin
+      login_password: adminpass
+      login_database: admin
