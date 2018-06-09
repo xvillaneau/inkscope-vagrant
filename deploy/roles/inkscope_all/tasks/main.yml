@@ -1,0 +1,28 @@
+---
+
+- name: Install inkscope dependencies
+  become: true
+  apt:
+    name: python-psutil
+
+- name: Install inkscope-common
+  become: true
+  apt:
+    deb: /home/vagrant/inkscope-packaging/DEBS/inkscope-common_1.4.0.2.deb
+
+- name: Copy inkscope.conf
+  become: true
+  copy:
+    src: /tmp/inkscope.conf
+    dest: /opt/inkscope/etc/inkscope.conf
+
+- name: Install inkscope-cephprobe
+  become: true
+  apt:
+    deb: /home/vagrant/inkscope-packaging/DEBS/inkscope-sysprobe_1.4.0.2.deb
+
+- name: Start cephprobe
+  become: true
+  service:
+    name: sysprobe
+    state: started

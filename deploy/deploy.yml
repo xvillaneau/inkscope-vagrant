@@ -22,27 +22,4 @@
   - ceph_osds
 
 - name: Install Inkscope
-  hosts: admin
-  tasks:
-
-  - name: Download Inkscope
-    git:
-      dest: /home/vagrant/inkscope-packaging
-      repo: https://github.com/inkscope/inkscope-packaging.git
-      version: V1.4.0-2
-
-  - name: Install ceph-rest-api
-    include_role: name=ceph_rest_api
-
-  - name: Install MongoDB
-    include_role: name=mongodb
-
-  - name: Add Inkscope DB user
-    mongodb_user:
-      database: inkscope
-      name: inkscope
-      password: inkscope
-      roles: dbOwner
-      login_user: admin
-      login_password: adminpass
-      login_database: admin
+  import_playbook: install_inkscope.yml

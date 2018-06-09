@@ -1,0 +1,21 @@
+---
+
+- name: Prepare inkScope installation
+  hosts: all
+  tasks:
+
+  - name: Download Inkscope
+    git:
+      dest: /home/vagrant/inkscope-packaging
+      repo: https://github.com/inkscope/inkscope-packaging.git
+      version: V1.4.0-2
+
+- name: Install Inkscope on the admin node
+  hosts: admin
+  roles:
+  - inkscope_admin
+
+- name: Finish installing Inkscope on all nodes
+  hosts: all
+  roles:
+  - inkscope_all

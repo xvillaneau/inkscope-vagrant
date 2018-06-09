@@ -1,0 +1,50 @@
+
+- name: Install inkscope-admviz dependencies
+  become: true
+  apt:
+    name:
+    - apache2
+    - libapache2-mod-wsgi
+
+- name: Enable Apache modules
+  become: true
+  apache2_module:
+    name: "{{ item }}"
+  with_items:
+  - proxy
+  - proxy_http
+
+- name: Install inkscope pip dependencies
+  become: true
+  pip:
+    name: Flask-Login
+    state: present
+
+- name: Install inkscope-admviz
+  become: true
+  apt:
+    deb: /home/vagrant/inkscope-packaging/DEBS/inkscope-admviz_1.4.0.2.deb
+
+- name: Disable Apache2 default site
+  become: true
+  command: a2dissite 000-default.conf
+  args:
+    removes: /etc/apache2/sites-enabled/000-default.conf
+
+- name: Push inkScope-adminviz configuration
+  become: true
+  template:
+    src: inkScope.conf.j2
+    dest: /etc/apache2/sites-available/inkScope.conf
+
+- name: Enable inkScope site
+  become: true
+  command: a2ensite inkScope.conf
+  args:
+    creates: /etc/apache2/sites-enabled/inkScope.conf
+
+- name: Restart Apache2
+  become: true
+  service:
+    name: apache2
+    state: restarted
